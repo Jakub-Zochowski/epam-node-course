@@ -15,4 +15,4 @@ const reverser = () => {
 }
 
 
-module.exports = reverser;
+export { reverser };

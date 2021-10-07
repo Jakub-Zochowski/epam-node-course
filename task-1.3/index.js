@@ -1,5 +1,5 @@
-const reverser = require('./task-1.1');
-const csvConverter = require('./task-1.2');
+import { reverser } from './task-1.js';
+import { csvConverter } from './task-2.js';
 
 reverser();
 csvConverter();
