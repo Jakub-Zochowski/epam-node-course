@@ -1,7 +1,9 @@
 import express, { Request } from "express";
 import { ValidatedRequest } from "express-joi-validation";
+import { StatusCodes } from "http-status-codes";
 
 import { UserService } from "../services/user";
+import { SuggestedUsersRequest } from "../types/user";
 import {
   validator,
   postSchema,
@@ -11,28 +13,22 @@ import {
 
 const router = express.Router();
 
-router.get(
-  "/suggested",
-  async (
-    req: Request<unknown, unknown, unknown, { login: string; limit: number }>,
-    res
-  ) => {
-    const { login, limit } = req.query;
-    try {
-      const users = UserService.getSuggestedUsers(login, limit);
-      res.send(users);
-    } catch (err) {
-      res.status(404);
-    }
+router.get("/suggested", async (req: SuggestedUsersRequest, res) => {
+  const { login, limit } = req.query;
+  try {
+    const users = await UserService.getSuggestedUsers({ login, limit });
+    res.send(users);
+  } catch (err) {
+    res.status(StatusCodes.NOT_FOUND);
   }
-);
+});
 
 router.get("/:id", async (req, res) => {
   try {
-    const user = await UserService.findAllUsers(req.params.id);
+    const user = await UserService.findUser(req.params.id);
     res.send(user);
   } catch (err) {
-    res.status(404);
+    res.status(StatusCodes.NOT_FOUND);
   }
 });
 
@@ -42,10 +38,10 @@ router.put(
   async (req: ValidatedRequest<CreateUserSchema>, res) => {
     const { id, login, password, age } = req.body;
     try {
-      await UserService.updateUser(id, login, password, age);
-      res.sendStatus(200);
+      await UserService.updateUser({ id, login, password, age });
+      res.sendStatus(StatusCodes.OK);
     } catch (err) {
-      res.sendStatus(400);
+      res.sendStatus(StatusCodes.BAD_REQUEST);
     }
   }
 );
@@ -56,10 +52,10 @@ router.post(
   async (req: ValidatedRequest<CreateUserSchema>, res) => {
     const { login, password, age } = req.body;
     try {
-      await UserService.createUser(login, password, age);
-      res.sendStatus(200);
+      await UserService.createUser({ login, password, age });
+      res.sendStatus(StatusCodes.CREATED);
     } catch (err) {
-      res.sendStatus(400);
+      res.sendStatus(StatusCodes.BAD_REQUEST);
     }
   }
 );
@@ -68,9 +64,9 @@ router.delete("/", async (req, res) => {
   const { id } = req.body;
   try {
     await UserService.deleteUser(id);
-    res.sendStatus(200);
+    res.sendStatus(StatusCodes.OK);
   } catch (err) {
-    res.sendStatus(400);
+    res.sendStatus(StatusCodes.BAD_REQUEST);
   }
 });
 

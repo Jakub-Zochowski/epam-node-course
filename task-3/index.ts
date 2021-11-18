@@ -1,4 +1,6 @@
 import express from "express";
+import { config } from "dotenv";
+config();
 
 import userRoutes from "./routers/user";
 import { sequelize } from "./data-access/user";

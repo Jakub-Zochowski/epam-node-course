@@ -1,8 +1,13 @@
-const { Sequelize } = require("sequelize");
+import { Sequelize } from "sequelize";
 
-const sequelize = new Sequelize("USERS", "epamadmin", "securePassword123", {
-  host: "localhost",
-  dialect: "postgres",
-});
+const sequelize = new Sequelize(
+  process.env.DATABASE!,
+  process.env.DB_USERNAME!,
+  process.env.DB_PASSWORD!,
+  {
+    host: "localhost",
+    dialect: "postgres",
+  }
+);
 
 export { sequelize };
