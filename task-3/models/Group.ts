@@ -2,25 +2,19 @@ const { DataTypes } = require("sequelize");
 
 import { sequelize } from "../data-access/database";
 
-const User = sequelize.define(
-  "user",
+const Group = sequelize.define(
+  "group",
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    login: {
+    name: {
       type: DataTypes.STRING,
     },
-    password: {
-      type: DataTypes.STRING,
-    },
-    age: {
-      type: DataTypes.INTEGER,
-    },
-    is_deleted: {
-      type: DataTypes.BOOLEAN,
+    permissions: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
     },
   },
   {
@@ -28,4 +22,4 @@ const User = sequelize.define(
   }
 );
 
-export { User };
+export { Group };

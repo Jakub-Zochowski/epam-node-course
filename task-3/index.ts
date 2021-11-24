@@ -3,7 +3,8 @@ import { config } from "dotenv";
 config();
 
 import userRoutes from "./routers/user";
-import { sequelize } from "./data-access/user";
+import groupRoutes from "./routers/group";
+import { startDbConnection } from "./data-access/database";
 
 const app = express();
 const PORT = 3000;
@@ -15,17 +16,9 @@ app.use(
   })
 );
 
-const startDbConnection = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-};
-
 startDbConnection();
 
 app.use("/user", userRoutes);
+app.use("/group", groupRoutes);
 
 app.listen(PORT, () => console.log(`The app is listening to ${PORT}`));

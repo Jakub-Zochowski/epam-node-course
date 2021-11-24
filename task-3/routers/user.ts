@@ -9,7 +9,7 @@ import {
   postSchema,
   putSchema,
   CreateUserSchema,
-} from "../validation";
+} from "../validation/user";
 
 const router = express.Router();
 

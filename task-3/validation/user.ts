@@ -47,4 +47,4 @@ interface CreateUserSchema extends ValidatedRequestSchema {
   };
 }
 
-export { validator, postSchema, putSchema, CreateUserSchema };
+export { id, validator, postSchema, putSchema, CreateUserSchema };
