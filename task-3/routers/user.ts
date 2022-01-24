@@ -10,10 +10,13 @@ import {
   putSchema,
   CreateUserSchema,
 } from "../validation/user";
+import LoggingService from '../services/logging';
+
+const logger = new LoggingService('GroupService');
 
 const router = express.Router();
 
-router.get("/suggested", async (req: SuggestedUsersRequest, res) => {
+router.get("/suggested", logger.routeLogger, async (req: SuggestedUsersRequest, res) => {
   const { login, limit } = req.query;
   try {
     const users = await UserService.getSuggestedUsers({ login, limit });
@@ -23,7 +26,7 @@ router.get("/suggested", async (req: SuggestedUsersRequest, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", logger.routeLogger, async (req, res) => {
   try {
     const user = await UserService.findUser(req.params.id);
     res.send(user);
@@ -35,6 +38,7 @@ router.get("/:id", async (req, res) => {
 router.put(
   "/",
   validator.body(putSchema),
+	logger.routeLogger,
   async (req: ValidatedRequest<CreateUserSchema>, res) => {
     const { id, login, password, age } = req.body;
     try {
@@ -49,6 +53,7 @@ router.put(
 router.post(
   "/",
   validator.body(postSchema),
+	logger.routeLogger,
   async (req: ValidatedRequest<CreateUserSchema>, res) => {
     const { login, password, age } = req.body;
     try {
@@ -60,7 +65,7 @@ router.post(
   }
 );
 
-router.delete("/", async (req, res) => {
+router.delete("/", logger.routeLogger, async (req, res) => {
   const { id } = req.body;
   try {
     await UserService.deleteUser(id);

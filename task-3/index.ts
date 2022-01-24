@@ -8,10 +8,12 @@ import { startDbConnection } from "./data-access/database";
 
 import LoggingService from "./services/logging";
 
+const logger = new LoggingService('app');
+
 const app = express();
 const PORT = 3000;
 
-process.on('uncaughtException', LoggingService.unhandledExceptionLogger);
+process.on('uncaughtException', logger.unhandledExceptionLogger);
 app.use(express.json());
 app.use(
   express.urlencoded({

@@ -1,16 +1,22 @@
-import { StatusCodes } from "http-status-codes";
-
 class LoggingService {
-	static logger = (method: string, ...args: any[]) => {
-		console.log(`${method} - Arguments: ${JSON.stringify(args)}`);
+	scope: string;
+
+	constructor(scope: string) {
+		this.scope = scope;
+	}
+
+	routeLogger = (req: any, res: any, next: any) => {
+		console.log(`[${this.scope}] - route: ${req.originalUrl}, params: ${JSON.stringify(req.params)}, body: ${JSON.stringify(req.body)}`);
+		next();
+	}
+
+	serviceLogger = (method: string, ...args: any[]) => {
+		console.log(`[${this.scope}] - method: ${method}, arguments: ${JSON.stringify(args)}`);
 	};
 
-	static unhandledExceptionLogger = (req: any, res: any, next: any) => {
-		res.status(StatusCodes.INTERNAL_SERVER_ERROR);
-		res.end('Oops, something went wrong.')
+	unhandledExceptionLogger = (req: any, res: any, next: any) => {
+		console.log(`[${this.scope}], Something went wrong`);
 	}
 }
-
-
 
 export default LoggingService;
