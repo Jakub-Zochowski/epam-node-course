@@ -10,10 +10,13 @@ import {
   CreateGroupSchema,
 } from "../validation/group";
 import { postUserGroupSchema } from "../validation/userGroup";
+import LoggingService from '../services/logging';
+
+const logger = new LoggingService('GroupRouter');
 
 const router = express.Router();
 
-router.get("/all", async (req, res) => {
+router.get("/all", logger.routeLogger, async (req, res) => {
   try {
     const groups = await GroupService.getAllGroups();
     res.send(groups);
@@ -22,7 +25,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", logger.routeLogger, async (req, res) => {
   try {
     const group = await GroupService.findGroup(req.params.id);
     res.send(group);
@@ -34,6 +37,7 @@ router.get("/:id", async (req, res) => {
 router.put(
   "/",
   validator.body(putSchema),
+	logger.routeLogger,
   async (req: ValidatedRequest<CreateGroupSchema>, res) => {
     const { id, name, permissions } = req.body;
     try {
@@ -48,6 +52,7 @@ router.put(
 router.post(
   "/add",
   validator.body(postUserGroupSchema),
+	logger.routeLogger,
   async (req: ValidatedRequest<any>, res) => {
     const { user_id, group_id } = req.body;
     try {
@@ -63,6 +68,7 @@ router.post(
 router.post(
   "/",
   validator.body(postSchema),
+	logger.routeLogger,
   async (req: ValidatedRequest<any>, res) => {
     const { name, permissions } = req.body;
     try {
@@ -74,7 +80,7 @@ router.post(
   }
 );
 
-router.delete("/", async (req, res) => {
+router.delete("/", logger.routeLogger, async (req, res) => {
   const { id } = req.body;
   try {
     await GroupService.deleteGroup(id);
