@@ -6,13 +6,15 @@ const router = express.Router();
 
 router.post("/login", async (req, res) => {
   try {
-		const { username, password } = req.body;
-		const token = AuthService.generateAccessToken({ username: username, password: password });
-  	res.json(token);
+    const { username, password } = req.body;
+    const token = AuthService.generateAccessToken({
+      username: username,
+      password: password,
+    });
+    res.json(token);
   } catch (err) {
-		res.send(StatusCodes.BAD_REQUEST);
+    res.send(StatusCodes.BAD_REQUEST);
   }
 });
-
 
 export default router;

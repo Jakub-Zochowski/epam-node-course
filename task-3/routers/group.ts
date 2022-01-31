@@ -10,9 +10,9 @@ import {
   CreateGroupSchema,
 } from "../validation/group";
 import { postUserGroupSchema } from "../validation/userGroup";
-import LoggingService from '../services/logging';
+import LoggingService from "../services/logging";
 
-const logger = new LoggingService('GroupRouter');
+const logger = new LoggingService("GroupRouter");
 
 const router = express.Router();
 
@@ -37,7 +37,7 @@ router.get("/:id", logger.routeLogger, async (req, res) => {
 router.put(
   "/",
   validator.body(putSchema),
-	logger.routeLogger,
+  logger.routeLogger,
   async (req: ValidatedRequest<CreateGroupSchema>, res) => {
     const { id, name, permissions } = req.body;
     try {
@@ -52,7 +52,7 @@ router.put(
 router.post(
   "/add",
   validator.body(postUserGroupSchema),
-	logger.routeLogger,
+  logger.routeLogger,
   async (req: ValidatedRequest<any>, res) => {
     const { user_id, group_id } = req.body;
     try {
@@ -68,7 +68,7 @@ router.post(
 router.post(
   "/",
   validator.body(postSchema),
-	logger.routeLogger,
+  logger.routeLogger,
   async (req: ValidatedRequest<any>, res) => {
     const { name, permissions } = req.body;
     try {
