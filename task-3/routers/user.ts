@@ -10,21 +10,25 @@ import {
   putSchema,
   CreateUserSchema,
 } from "../validation/user";
-import LoggingService from '../services/logging';
+import LoggingService from "../services/logging";
 
-const logger = new LoggingService('GroupService');
+const logger = new LoggingService("GroupService");
 
 const router = express.Router();
 
-router.get("/suggested", logger.routeLogger, async (req: SuggestedUsersRequest, res) => {
-  const { login, limit } = req.query;
-  try {
-    const users = await UserService.getSuggestedUsers({ login, limit });
-    res.send(users);
-  } catch (err) {
-    res.status(StatusCodes.NOT_FOUND);
+router.get(
+  "/suggested",
+  logger.routeLogger,
+  async (req: SuggestedUsersRequest, res) => {
+    const { login, limit } = req.query;
+    try {
+      const users = await UserService.getSuggestedUsers({ login, limit });
+      res.send(users);
+    } catch (err) {
+      res.status(StatusCodes.NOT_FOUND);
+    }
   }
-});
+);
 
 router.get("/:id", logger.routeLogger, async (req, res) => {
   try {
@@ -38,7 +42,7 @@ router.get("/:id", logger.routeLogger, async (req, res) => {
 router.put(
   "/",
   validator.body(putSchema),
-	logger.routeLogger,
+  logger.routeLogger,
   async (req: ValidatedRequest<CreateUserSchema>, res) => {
     const { id, login, password, age } = req.body;
     try {
@@ -53,7 +57,7 @@ router.put(
 router.post(
   "/",
   validator.body(postSchema),
-	logger.routeLogger,
+  logger.routeLogger,
   async (req: ValidatedRequest<CreateUserSchema>, res) => {
     const { login, password, age } = req.body;
     try {
