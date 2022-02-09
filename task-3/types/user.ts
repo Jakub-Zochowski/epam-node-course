@@ -5,7 +5,7 @@ interface UserInterface {
   login: string;
   password: string;
   age: number;
-	is_deleted: boolean;
+  is_deleted: boolean;
 }
 interface UpdateUserArguments {
   id: string;
@@ -33,7 +33,7 @@ type SuggestedUsersRequest = Request<
 >;
 
 export {
-	UserInterface,
+  UserInterface,
   UpdateUserArguments,
   CreateUserArguments,
   SuggestedUsersArguments,

@@ -19,7 +19,6 @@ app.use(
   })
 );
 
-
 app.use("/auth", authRoutes);
 app.use("/user", AuthService.authenticateToken, userRoutes);
 app.use("/group", AuthService.authenticateToken, groupRoutes);

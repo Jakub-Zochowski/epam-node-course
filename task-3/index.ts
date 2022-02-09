@@ -2,7 +2,7 @@ import { config } from "dotenv";
 config();
 import { startDbConnection } from "./data-access/database";
 
-import app from './app';
+import app from "./app";
 
 startDbConnection();
 
