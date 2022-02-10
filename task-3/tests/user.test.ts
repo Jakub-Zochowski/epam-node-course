@@ -13,130 +13,137 @@ const jwtToken = AuthService.generateAccessToken({
 });
 
 describe("Test User Path", () => {
-  test("Requesting suggested users should return users.", async () => {
-    const suggestedUsers: any[] = await UserService.getSuggestedUsers({
+	test.each([
+		{
+			path: '/user/suggested?login=test',
+			expected: 400
+		},
+		{
+			path: '/user/suggested?limit=3',
+			expected: 400
+		},
+		{
+			path: '/user/suggested?limit=3&login=test',
+			expected: 200
+		}
+	])('Requesting suggested user', async ({path, expected}) => {
+		const suggestedUsers: any[] = await UserService.getSuggestedUsers({
       login: "test",
       limit: 3,
     });
-    return request(app)
-      .get("/user/suggested?limit=3&login=test")
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number; body: any }) => {
-        expect(response.statusCode).toBe(200);
-        expect(Array.isArray(response.body)).toBeTruthy();
-        expect(response.body[0].id).toBe(suggestedUsers[0].id);
-        expect(response.body[0].login).toBe(suggestedUsers[0].login);
-        expect(response.body[0].password).toBe(suggestedUsers[0].password);
-        expect(response.body[0].age).toBe(suggestedUsers[0].age);
-        expect(response.body[0].is_deleted).toBe(suggestedUsers[0].is_deleted);
-      });
-  });
+		const data = await request(app)
+		.get(path)
+		.set("Authorization", "Bearer " + jwtToken);
 
-  test("Requesting suggested users without providing limit should fail", () => {
-    return request(app)
-      .get("/user/suggested?login=test")
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(400);
-      });
-  });
+		if (expected === 200) {
+			expect(Array.isArray(data.body)).toBeTruthy();
+			expect(data.body[0].id).toBe(suggestedUsers[0].id);
+			expect(data.body[0].login).toBe(suggestedUsers[0].login);
+			expect(data.body[0].password).toBe(suggestedUsers[0].password);
+			expect(data.body[0].age).toBe(suggestedUsers[0].age);
+			expect(data.body[0].is_deleted).toBe(suggestedUsers[0].is_deleted);
+		}
 
-  test("Requesting suggested users without providing username should fail", () => {
-    return request(app)
-      .get("/user/suggested?login=test")
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(400);
-      });
-  });
+		expect(data.statusCode).toBe(expected);
+	});
 
-  test("Requesting a user with a valid id should return a user", async () => {
-    const testUser: any = await UserService.findUser("2");
-    return request(app)
-      .get("/user/2")
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number; body: any }) => {
-        expect(response.statusCode).toBe(200);
-        expect(response.body.id).toBe(testUser.id);
-        expect(response.body.login).toBe(testUser.login);
-        expect(response.body.password).toBe(testUser.password);
-        expect(response.body.age).toBe(testUser.age);
-        expect(response.body.is_deleted).toBe(testUser.is_deleted);
-      });
-  });
+	test.each([
+		{
+			id: '2',
+			expected: 200
+		},
+		{
+			id: '999999',
+			expected: 404
+		}
+	])('Requesting a user', async ({id, expected}) => {
+		const testUser: any = await UserService.findUser(id);
+		const data = await request(app)
+		.get(`/user/${id}`)
+		.set("Authorization", "Bearer " + jwtToken);
 
-  test("Requesting a user with an non existing id", () => {
-    return request(app)
-      .get("/user/999999")
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(404);
-      });
-  });
+		if (expected === 200) {
+			expect(data.body.id).toBe(testUser.id);
+			expect(data.body.login).toBe(testUser.login);
+			expect(data.body.password).toBe(testUser.password);
+			expect(data.body.age).toBe(testUser.age);
+			expect(data.body.is_deleted).toBe(testUser.is_deleted);
+		}
 
-  test("Updating a user with correct data should update the user", () => {
-    return request(app)
-      .put("/user/")
-      .send({
-        id: 2,
-        login: "atestUser3",
-        password: "myPassword3",
-        age: "43",
-      })
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(200);
-      });
-  });
+		expect(data.statusCode).toBe(expected);
+	});
 
-  test("Creating the user with correct data should succeed", () => {
-    return request(app)
-      .post("/user/")
-      .send({
-        login: "atestUser99",
-        password: "myPassword3",
-        age: "37",
-      })
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(201);
-      });
-  });
+	test.each([
+		{
+			user: {
+				id: 2,
+				login: "atestUser3",
+				password: "myPassword3",
+				age: "43",
+			},
+			expected: 200
+		},
+		{
+			user: {
+				login: "atestUser99",
+				password: "myPassword3",
+				age: "37",
+			},
+			expected: 400
+		}
+	])('Updating a user', async ({user, expected}) => {
+		const data = await request(app)
+		.put("/user/")
+		.send(user)
+		.set("Authorization", "Bearer " + jwtToken);
 
-  test("Creating the user with incorrect data should fail", () => {
-    return request(app)
-      .post("/user/")
-      .send({
-        login: "atestUser99",
-        password: "myPassword3",
-      })
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(400);
-      });
-  });
+		expect(data.statusCode).toBe(expected);
+	});
 
-  test("Deleting a user should succeed", () => {
-    return request(app)
-      .delete("/user/")
-      .send({
-        id: "99",
-      })
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(200);
-      });
-  });
+	test.each([
+		{
+			user: {
+				login: "atestUser99",
+				password: "myPassword3",
+				age: "37",
+			},
+			expected: 201
+		},
+		{
+			user: {
+				login: "atestUser99",
+				password: "myPassword3",
+			},
+			expected: 400
+		}
+	])('Creating a user', async ({user, expected}) => {
+		const data = await request(app)
+		.post("/user/")
+		.send(user)
+		.set("Authorization", "Bearer " + jwtToken);
 
-  test("Deleting a user without providing id should fail", () => {
-    return request(app)
-      .delete("/user/")
-      .send({
-        username: "testuser99",
-      })
-      .set("Authorization", "Bearer " + jwtToken)
-      .then((response: { statusCode: number }) => {
-        expect(response.statusCode).toBe(400);
-      });
-  });
+		expect(data.statusCode).toBe(expected);
+	});
+
+	test.each([
+		{
+			user: {
+				id: "99",
+			},
+			expected: 200
+		},
+		{
+			user: {
+				username: "testuser99",
+			},
+			expected: 400
+		}
+	])('Deleting a user', async ({user, expected}) => {
+		const data = await request(app)
+		.delete("/user/")
+		.send(user)
+		.set("Authorization", "Bearer " + jwtToken);
+
+		expect(data.statusCode).toBe(expected);
+	});
 });
