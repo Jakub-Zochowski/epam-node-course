@@ -15,7 +15,7 @@ const jwtToken = AuthService.generateAccessToken({
 });
 
 	// GROUP ID
-	const VALID_GROUP_ID = '29';
+	const VALID_GROUP_ID = '31';
 
 	// GROUP NAME
 	const GROUP_NAME = 'testGroup99';
@@ -46,7 +46,7 @@ describe("Test Group Path", () => {
   test("Requesting specific group", async () => {
     const group: any = await GroupService.findGroup(VALID_GROUP_ID);
     const data = await request(app)
-      .get("/group/29")
+      .get("/group/31")
       .set("Authorization", "Bearer " + jwtToken);
 
     expect(data.statusCode).toBe(StatusCodes.OK);
@@ -109,7 +109,7 @@ describe("Test Group Path", () => {
   test.each([
     {
       group: {
-        id: VALID_GROUP_ID,
+        id: '99',
       },
       expected: StatusCodes.OK,
     },
@@ -129,6 +129,13 @@ describe("Test Group Path", () => {
   });
 
   test.each([
+		{
+      group: {
+        user_id: USER_ID,
+        group_id: VALID_GROUP_ID,
+      },
+      expected: StatusCodes.CREATED,
+    },
     {
       group: {
         user_id: USER_ID,
