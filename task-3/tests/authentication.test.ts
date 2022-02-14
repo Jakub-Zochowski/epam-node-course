@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { StatusCodes } from "http-status-codes";
 dotenv.config();
 
 import request from "supertest";
@@ -10,7 +11,7 @@ describe("Test Authentication Path", () => {
       username: "test",
       password: "password",
     });
-    expect(data.statusCode).toBe(200);
+    expect(data.statusCode).toBe(StatusCodes.OK);
     expect(data.text).toBeTruthy();
   });
 });

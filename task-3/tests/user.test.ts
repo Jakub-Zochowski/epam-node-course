@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { StatusCodes } from "http-status-codes";
+
 import request from "supertest";
 import app from "../app";
 
@@ -12,19 +14,32 @@ const jwtToken = AuthService.generateAccessToken({
   password: "somePassword",
 });
 
+// USER ID
+const VALID_USER_ID = '2';
+const INVALID_USER_ID = '99';
+
+//USER LOGIN
+const USER_LOGIN = 'atestUser3';
+
+//USER PASSWORD
+const USER_PASSWORD = 'myPassword3';
+
+//USET AGE
+const USER_AGE = '39'
+
 describe("Test User Path", () => {
   test.each([
     {
       path: "/user/suggested?login=test",
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
     {
       path: "/user/suggested?limit=3",
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
     {
       path: "/user/suggested?limit=3&login=test",
-      expected: 200,
+      expected: StatusCodes.OK,
     },
   ])("Requesting suggested user", async ({ path, expected }) => {
     const suggestedUsers: any[] = await UserService.getSuggestedUsers({
@@ -35,7 +50,7 @@ describe("Test User Path", () => {
       .get(path)
       .set("Authorization", "Bearer " + jwtToken);
 
-    if (expected === 200) {
+    if (expected === StatusCodes.OK) {
       expect(Array.isArray(data.body)).toBeTruthy();
       expect(data.body[0].id).toBe(suggestedUsers[0].id);
       expect(data.body[0].login).toBe(suggestedUsers[0].login);
@@ -49,12 +64,12 @@ describe("Test User Path", () => {
 
   test.each([
     {
-      id: "2",
-      expected: 200,
+      id: VALID_USER_ID,
+      expected: StatusCodes.OK,
     },
     {
-      id: "999999",
-      expected: 404,
+      id: INVALID_USER_ID,
+      expected: StatusCodes.NOT_FOUND,
     },
   ])("Requesting a user", async ({ id, expected }) => {
     const testUser: any = await UserService.findUser(id);
@@ -62,7 +77,7 @@ describe("Test User Path", () => {
       .get(`/user/${id}`)
       .set("Authorization", "Bearer " + jwtToken);
 
-    if (expected === 200) {
+    if (expected === StatusCodes.OK) {
       expect(data.body.id).toBe(testUser.id);
       expect(data.body.login).toBe(testUser.login);
       expect(data.body.password).toBe(testUser.password);
@@ -76,20 +91,20 @@ describe("Test User Path", () => {
   test.each([
     {
       user: {
-        id: 2,
-        login: "atestUser3",
-        password: "myPassword3",
-        age: "43",
+        id: VALID_USER_ID,
+        login: USER_LOGIN,
+        password: USER_PASSWORD,
+        age: USER_AGE,
       },
-      expected: 200,
+      expected: StatusCodes.OK,
     },
     {
       user: {
-        login: "atestUser99",
-        password: "myPassword3",
-        age: "37",
+        id: VALID_USER_ID,
+        login: USER_LOGIN,
+        password: USER_PASSWORD,
       },
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
   ])("Updating a user", async ({ user, expected }) => {
     const data = await request(app)
@@ -103,18 +118,18 @@ describe("Test User Path", () => {
   test.each([
     {
       user: {
-        login: "atestUser99",
-        password: "myPassword3",
-        age: "37",
+        login: USER_LOGIN,
+        password: USER_PASSWORD,
+        age: USER_AGE,
       },
-      expected: 201,
+      expected: StatusCodes.CREATED,
     },
     {
       user: {
-        login: "atestUser99",
-        password: "myPassword3",
+        login: USER_LOGIN,
+        password: USER_PASSWORD,
       },
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
   ])("Creating a user", async ({ user, expected }) => {
     const data = await request(app)
@@ -128,15 +143,15 @@ describe("Test User Path", () => {
   test.each([
     {
       user: {
-        id: "99",
+        id: INVALID_USER_ID,
       },
-      expected: 200,
+      expected: StatusCodes.OK,
     },
     {
       user: {
-        username: "testuser99",
+        username: USER_LOGIN,
       },
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
   ])("Deleting a user", async ({ user, expected }) => {
     const data = await request(app)

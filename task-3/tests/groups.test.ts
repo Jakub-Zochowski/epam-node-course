@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { StatusCodes } from "http-status-codes";
+
 import request from "supertest";
 import app from "../app";
 
@@ -12,6 +14,20 @@ const jwtToken = AuthService.generateAccessToken({
   password: "somePassword",
 });
 
+	// GROUP ID
+	const VALID_GROUP_ID = '29';
+
+	// GROUP NAME
+	const GROUP_NAME = 'testGroup99';
+
+	// GROUP PERMISSIONS
+	const VALID_GROUP_PERMISSIONS = ["READ", "WRITE", "DELETE", "SHARE", "UPLOAD_FILES"];
+	const INVALID_GROUP_PERMISSIONS = ["READ1", "WRITE", "DELETE", "SHARE", "UPLOAD_FILES"];
+
+	// USER ID
+	const USER_ID = '94';
+
+
 describe("Test Group Path", () => {
   test("Requesting all groups should return all groups", async () => {
     const allGroups: any[] = await GroupService.getAllGroups();
@@ -19,7 +35,7 @@ describe("Test Group Path", () => {
       .get("/group/all")
       .set("Authorization", "Bearer " + jwtToken);
 
-    expect(data.statusCode).toBe(200);
+    expect(data.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(data.body)).toBeTruthy();
     expect(data.body.length).toEqual(allGroups.length);
     expect(data.body[0].id).toBe(allGroups[0].id);
@@ -28,12 +44,12 @@ describe("Test Group Path", () => {
   });
 
   test("Requesting specific group", async () => {
-    const group: any = await GroupService.findGroup("1");
+    const group: any = await GroupService.findGroup(VALID_GROUP_ID);
     const data = await request(app)
-      .get("/group/1")
+      .get("/group/29")
       .set("Authorization", "Bearer " + jwtToken);
 
-    expect(data.statusCode).toBe(200);
+    expect(data.statusCode).toBe(StatusCodes.OK);
     expect(data.body).toBeTruthy();
     expect(data.body.id).toBe(group.id);
     expect(data.body.name).toBe(group.name);
@@ -43,19 +59,19 @@ describe("Test Group Path", () => {
   test.each([
     {
       group: {
-        id: "1",
-        name: "testGroup99",
-        permissions: ["READ", "WRITE", "DELETE", "SHARE", "UPLOAD_FILES"],
+        id: VALID_GROUP_ID,
+        name: GROUP_NAME,
+        permissions: VALID_GROUP_PERMISSIONS,
       },
-      expected: 200,
+      expected: StatusCodes.OK,
     },
     {
       group: {
-        id: "1",
-        name: "testGroup99",
-        permissions: ["READ1", "WRITE", "DELETE", "SHARE", "UPLOAD_FILES"],
+        id: VALID_GROUP_ID,
+        name: GROUP_NAME,
+        permissions: INVALID_GROUP_PERMISSIONS,
       },
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
   ])("Updating specific group", async ({ group, expected }) => {
     const data = await request(app)
@@ -69,17 +85,17 @@ describe("Test Group Path", () => {
   test.each([
     {
       group: {
-        name: "testGroup99",
-        permissions: ["READ", "WRITE", "DELETE", "SHARE", "UPLOAD_FILES"],
+        name: GROUP_NAME,
+        permissions: VALID_GROUP_PERMISSIONS,
       },
-      expected: 201,
+      expected: StatusCodes.CREATED,
     },
     {
       group: {
-        name: "testGroup99",
-        permissions: ["READ1", "WRITE", "DELETE", "SHARE", "UPLOAD_FILES"],
+        name: GROUP_NAME,
+        permissions: INVALID_GROUP_PERMISSIONS,
       },
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
   ])("Creating new group", async ({ group, expected }) => {
     const data = await request(app)
@@ -93,15 +109,15 @@ describe("Test Group Path", () => {
   test.each([
     {
       group: {
-        id: "2",
+        id: VALID_GROUP_ID,
       },
-      expected: 200,
+      expected: StatusCodes.OK,
     },
     {
       group: {
-        name: "group99",
+        name: GROUP_NAME,
       },
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
   ])("Deleting a group", async ({ group, expected }) => {
     const data = await request(app)
@@ -115,17 +131,10 @@ describe("Test Group Path", () => {
   test.each([
     {
       group: {
-        user_id: "7",
-        group_id: "8",
+        user_id: USER_ID,
+        group_name: VALID_GROUP_ID,
       },
-      expected: 201,
-    },
-    {
-      group: {
-        user_id: "7",
-        group_name: "8",
-      },
-      expected: 400,
+      expected: StatusCodes.BAD_REQUEST,
     },
   ])("Adding a user to a group", async ({ group, expected }) => {
     const data = await request(app)
