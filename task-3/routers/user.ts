@@ -21,6 +21,7 @@ router.get(
   logger.routeLogger,
   async (req: SuggestedUsersRequest, res) => {
     const { login, limit } = req.query;
+    if (!login || !limit) res.send(StatusCodes.BAD_REQUEST);
     try {
       const users = await UserService.getSuggestedUsers({ login, limit });
       res.send(users);
@@ -33,6 +34,7 @@ router.get(
 router.get("/:id", logger.routeLogger, async (req, res) => {
   try {
     const user = await UserService.findUser(req.params.id);
+    if (!user) res.status(StatusCodes.NOT_FOUND);
     res.send(user);
   } catch (err) {
     res.status(StatusCodes.NOT_FOUND);
